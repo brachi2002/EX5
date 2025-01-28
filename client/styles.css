@@ -1,0 +1,150 @@
+/* עיצוב כללי של הדף */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+/* עיצוב הכותרות */
+h1, h2 {
+    color: #333;
+}
+
+/* מיכל מרכזי */
+.container {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+}
+
+/* עיצוב כפתורים */
+button {
+    padding: 10px 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin: 5px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* קבוצה של כפתורים */
+.buttons {
+    margin: 20px 0;
+}
+
+/* טבלת הפרויקטים */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background-color: #fff;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+table th {
+    background-color: #333;
+    color: #fff;
+}
+
+/* עיצוב מודלים (טפסים קופצים) */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* תוכן של המודל */
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 50%;
+    box-shadow: 0px 0px 10px gray;
+    position: relative;
+    text-align: left;
+}
+
+/* כפתור סגירה למודלים */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* עיצוב טפסים */
+form {
+    width: 100%;
+    padding: 10px;
+}
+
+form input, form button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 16px;
+}
+
+/* סגנון עבור כפתור השליחה */
+form button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #218838;
+}
+
+/* הסתרת טפסים עד פתיחתם */
+.hidden {
+    display: none;
+}
+
+.teamMember {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.teamMember select, .teamMember input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.removeMember {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.removeMember:hover {
+    background-color: darkred;
+}

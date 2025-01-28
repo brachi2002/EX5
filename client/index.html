@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Project Management</h1>
+
+        <!-- כפתורים ראשיים -->
+        <div class="buttons">
+            <button id="loadProjects">Load Projects</button>
+            <button id="showAddProjectModal">Add Project</button>
+            <button id="showAddMemberModal">Add Member</button>
+        </div>
+
+        <!-- טבלת הצגת הפרויקטים -->
+        <table id="projectsTable">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Manager</th>
+                    <th>Start Date</th>
+                    <th>Team</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="projectList"></tbody>
+        </table>
+
+        <!-- מודל הוספת פרויקט -->
+        <div id="addProjectModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('addProjectModal')">&times;</span>
+                <h2>Add New Project</h2>
+                <form id="addProjectForm">
+                    <input type="text" id="projectName" placeholder="Project Name" required>
+                    <input type="text" id="projectDesc" placeholder="Description" required>
+                    <input type="datetime-local" id="startDate" required>
+                    <input type="text" id="managerName" placeholder="Manager Name" required>
+                    <input type="email" id="managerEmail" placeholder="Manager Email" required>
+                    
+                    <h3>Team Members</h3>
+                    <div id="teamMembers"></div>
+                    <button type="button" id="addTeamMember">Add Team Member</button>
+                    <button type="submit">Add Project</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- מודל הוספת חבר צוות -->
+        <div id="addMemberModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('addMemberModal')">&times;</span>
+                <h2>Add New Member</h2>
+                <form id="addMemberForm">
+                    <input type="text" id="memberName" placeholder="Member Name" required>
+                    <input type="email" id="memberEmail" placeholder="Member Email" required>
+                    <button type="submit">Add Member</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
