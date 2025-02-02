@@ -43,5 +43,22 @@ router.post('/:id/addMember', async (req, res) => {
     }
 });
 
+// יצירת חבר צוות חדש
+router.post('/create', async (req, res) => {
+    try {
+        const { name, email } = req.body;
+
+        if (!name || !email) {
+            return res.status(400).json({ error: 'Name and email are required' });
+        }
+
+        const newMember = new Member({ name, email });
+        await newMember.save();
+
+        res.status(201).json({ memberId: newMember._id });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 module.exports = router;

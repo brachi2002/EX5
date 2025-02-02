@@ -107,14 +107,31 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// מחיקת פרויקט לפי מזהה
 router.delete('/:id', async (req, res) => {
     try {
-        await Project.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: "Project deleted successfully" });
+        const projectId = req.params.id;
+
+        // מוצאים את הפרויקט כדי לקבל את רשימת אנשי הצוות
+        const project = await Project.findById(projectId);
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        // מסירים את הפרויקט מכל חברי הצוות
+        await Member.updateMany(
+            { "projects.projectId": projectId }, 
+            { $pull: { projects: { projectId: projectId } } }
+        );
+
+        // מוחקים את הפרויקט עצמו
+        await Project.findByIdAndDelete(projectId);
+
+        res.status(200).json({ message: "Project deleted successfully and removed from team members" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
+
 
 module.exports = router;
