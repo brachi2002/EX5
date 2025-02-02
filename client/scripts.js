@@ -1,81 +1,106 @@
 $(document).ready(function () {
-    /** ---------------------- פונקציות כלליות ---------------------- **/
+     /** ---------------------- General Utility Functions ---------------------- **/
 
+    /**
+     * Opens a modal dialog by fading it in.
+     * @param {string} modalId - The ID of the modal to open.
+     */
     function openModal(modalId) {
         $("#" + modalId).fadeIn();
     }
 
+    /**
+     * Closes a modal dialog by fading it out.
+     * @param {string} modalId - The ID of the modal to close.
+     */
     function closeModal(modalId) {
         $("#" + modalId).fadeOut();
     }
-        /** ---------------------- טעינת הפרויקטים אוטומטית ---------------------- **/
-        function loadProjects() {
-            $.ajax({
-                url: "http://localhost:3001/api/projects/list",
-                type: "GET",
-                success: function (projects) {
-                    $("#projectList").empty();
-                    projects.forEach(project => {
-                        const teamList = project.team.length > 0 
-                            ? project.team.map(member => `${member.name} (${member.role})`).join(", ") 
-                            : "No team members";
-                            const formattedDate = new Intl.DateTimeFormat('en-GB', { 
-                                year: 'numeric', 
-                                month: '2-digit', 
-                                day: '2-digit', 
-                                hour: '2-digit', 
-                                minute: '2-digit',
-                                second: '2-digit',
-                                hour12: false
-                            }).format(new Date(project.startDate));                            
-                        $("#projectList").append(`
-                            <tr>
-                                <td>${project._id}</td>
-                                <td>${project.name}</td>
-                                <td><a href="mailto:${project.manager.email}" class="email-link">${project.manager.name} (${project.manager.email})</a></td>
-                                <td>${formattedDate}</td>
-                                <td>${teamList}</td>
-                                <td>
-                                    <button class="viewTeam" data-id="${project._id}">View Team</button>
-                                    <button class="deleteProject" data-id="${project._id}">Delete</button>
-                                </td>
-                            </tr>
-                        `);
-                    });
-                },
-                error: function (err) {
-                    alert("Error loading projects");
-                    console.log(err);
-                }
-            });
-        }
-    
-        // קריאה לפונקציה עם טעינת הדף
-        loadProjects();
-    
-        // טיפול במחיקה של פרויקט
-        $(document).on("click", ".deleteProject", function () {
-            const projectId = $(this).data("id");
-    
-            if (!confirm("Are you sure you want to delete this project?")) return;
-    
-            $.ajax({
-                url: `http://localhost:3001/api/projects/${projectId}`,
-                type: "DELETE",
-                success: function () {
-                    alert("Project deleted successfully!");
-                    loadProjects(); // רענון הרשימה אחרי מחיקה
-                },
-                error: function (err) {
-                    alert("Error deleting project");
-                    console.log(err);
-                }
-            });
+         /** ---------------------- Auto-loading Projects ---------------------- **/
+
+    /**
+     * Fetches all projects from the server and displays them in a table.
+     */
+    function loadProjects() {
+        $.ajax({
+            url: "http://localhost:3001/api/projects/list",
+            type: "GET",
+            success: function (projects) {
+                $("#projectList").empty();
+                projects.forEach(project => {
+                    const teamList = project.team.length > 0 
+                        ? project.team.map(member => `${member.name} (${member.role})`).join(", ") 
+                        : "No team members";
+
+                    // Formats date to 'DD/MM/YYYY HH:MM:SS'
+                    const formattedDate = new Intl.DateTimeFormat('en-GB', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit', 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                    }).format(new Date(project.startDate));
+
+                    // Append project details to the table
+                    $("#projectList").append(`
+                        <tr>
+                            <td>${project._id}</td>
+                            <td>${project.name}</td>
+                            <td><a href="mailto:${project.manager.email}" class="email-link">${project.manager.name} (${project.manager.email})</a></td>
+                            <td>${formattedDate}</td>
+                            <td>${teamList}</td>
+                            <td>
+                                <button class="viewTeam" data-id="${project._id}">View Team</button>
+                                <button class="deleteProject" data-id="${project._id}">Delete</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            },
+            error: function (err) {
+                alert("Error loading projects");
+                console.log(err);
+            }
         });
+    }
+
+    // Load projects when the page is ready
+    loadProjects();
+
+
+    /** ---------------------- Deleting a Project ---------------------- **/
+
+    /**
+     * Deletes a project by its ID.
+     */
+    $(document).on("click", ".deleteProject", function () {
+        const projectId = $(this).data("id");
+
+        if (!confirm("Are you sure you want to delete this project?")) return;
+
+        $.ajax({
+            url: `http://localhost:3001/api/projects/${projectId}`,
+            type: "DELETE",
+            success: function () {
+                alert("Project deleted successfully!");
+                loadProjects(); // Refresh project list after deletion
+            },
+            error: function (err) {
+                alert("Error deleting project");
+                console.log(err);
+            }
+        });
+    });
+
     
     
-    
-    /** ---------------------- ניהול חברי צוות ---------------------- **/
+     /** ---------------------- Managing Team Members ---------------------- **/
+
+    /**
+     * Loads all team members from the server and populates dropdowns.
+     */
     function loadMembers() {
         $.ajax({
             url: "http://localhost:3001/api/members/list",
@@ -93,71 +118,59 @@ $(document).ready(function () {
         });
     }
 
-    $(document).on("click", "#showAddMemberModal", function () {
-        console.log("Add Member button clicked!");
-        openModal("addMemberModal");
+ /**
+     * Opens the Add Member modal.
+     */
+ $(document).on("click", "#showAddMemberModal", function () {
+    console.log("Add Member button clicked!");
+    openModal("addMemberModal");
+});
+
+
+   /**
+     * Submits the Add Member form and sends the new member data to the server.
+     */
+   $("#addMemberForm").submit(function (event) {
+    event.preventDefault();
+    const newMember = {
+        name: $("#memberName").val(),
+        email: $("#memberEmail").val()
+    };
+
+    $.ajax({
+        url: "http://localhost:3001/api/members/create",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(newMember),
+        success: function () {
+            alert("Member added successfully!");
+            $("#addMemberForm")[0].reset();
+            closeModal("addMemberModal");
+            loadMembers();
+        },
+        error: function (err) {
+            alert("Error adding member");
+            console.log(err);
+        }
     });
+});
 
-    $("#addMemberForm").submit(function (event) {
-        event.preventDefault();
-        const newMember = {
-            name: $("#memberName").val(),
-            email: $("#memberEmail").val()
-        };
+  
 
-        $.ajax({
-            url: "http://localhost:3001/api/members/create",
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(newMember),
-            success: function () {
-                alert("Member added successfully!");
-                $("#addMemberForm")[0].reset();
-                closeModal("addMemberModal");
-                loadMembers();
-            },
-            error: function (err) {
-                alert("Error adding member");
-                console.log(err);
-            }
-        });
-    });
+    /** ---------------------- Managing Projects ---------------------- **/
 
-    // $("#addMemberForm").submit(function (event) {
-    //     event.preventDefault();
-    //     const memberId = $("#memberIdInput").val();  // מזהה מוקלד
-    //     const role = $("#memberRole").val();
-    
-    //     if (!memberId || !role) {
-    //         alert("Member ID and role are required!");
-    //         return;
-    //     }
-    
-    //     $.ajax({
-    //         url: `http://localhost:3001/api/projects/${selectedProjectId}/addMember`,
-    //         type: "POST",
-    //         contentType: "application/json",
-    //         data: JSON.stringify({ memberId, role }),
-    //         success: function () {
-    //             alert("Member added successfully!");
-    //             closeModal("addMemberModal");
-    //         },
-    //         error: function (err) {
-    //             alert("Error adding member");
-    //             console.log(err);
-    //         }
-    //     });
-    // });
-    
-
-    /** ---------------------- ניהול פרויקטים ---------------------- **/
+    /**
+     * Opens the Add Project modal.
+     */
     $(document).on("click", "#showAddProjectModal", function () {
         $("#teamMembers").empty();
         loadMembers();
         openModal("addProjectModal");
     });
 
-    
+    /**
+     * Adds a new team member selection field to the Add Project form.
+     */
     $("#addTeamMember").click(function () {
         $("#teamMembers").append(`
             <div class="teamMember">
@@ -168,7 +181,6 @@ $(document).ready(function () {
         `);
         loadMembersForSelection();
     });
-    
 
 
     function updateMemberDropdowns(members) {
@@ -209,10 +221,16 @@ $(document).ready(function () {
     
 
 
+    /**
+     * Removes a team member selection field from the Add Project form.
+     */
     $(document).on("click", ".removeMember", function () {
         $(this).closest(".teamMember").remove();
     });
 
+    /**
+     * Submits the Add Project form and sends the new project data to the server.
+     */
     $("#addProjectForm").submit(function (event) {
         event.preventDefault();
 
@@ -227,7 +245,8 @@ $(document).ready(function () {
             team: []
         };
 
-      
+
+       // Collect selected team members
         $(".teamMember").each(function () {
             const memberId = $(this).find(".memberSelect").val();
             const memberName = $(this).find(".memberSelect option:selected").text().split(" (")[0]; // קבלת שם העובד
@@ -269,43 +288,12 @@ $(document).ready(function () {
     });
     
 
-    // $("#loadProjects").click(function () {
-        // $.ajax({
-            // url: "http://localhost:3001/api/projects/list",
-            // type: "GET",
-            // success: function (projects) {
-                // $("#projectList").empty();
-                // projects.forEach(project => {
-                    // const teamList = project.team.length > 0 
-                        // ? project.team.map(member => `${member.name} (${member.role})`).join(", ") 
-                        // : "No team members";
-                        // const formattedDate = new Date(project.startDate).toISOString().slice(0, 16).replace("T", " ");
-                    // $("#projectList").append(`
-                        // <tr>
-                            // <td>${project._id}</td>
-                            // <td>${project.name}</td>
-                            // <td><a href="mailto:${project.manager.email}" class="email-link">${project.manager.name} (${project.manager.email})</a></td>
-                            // <td>${formattedDate}</td>
-                            // <td>${teamList}</td>
-                            // <td>
-                                // <button class="viewTeam" data-id="${project._id}">View Team</button>
-                                // <button class="deleteProject" data-id="${project._id}">Delete</button>
-                            // </td>
-                        // </tr>
-                    // `);
-                // });
-            // },
-            // error: function (err) {
-                // alert("Error loading projects");
-                // console.log(err);
-            // }
-        // });
-    // });
-
+   
     $(document).on("change", ".memberSelect", function () {
         loadMembersForSelection();
     });
     
+    /** ---------------------- Viewing Team Members ---------------------- **/
 
     $(document).on("click", ".viewTeam", function () {
         const projectId = $(this).data("id");
@@ -329,23 +317,5 @@ $(document).ready(function () {
     });
    
 
-    $(document).on("click", ".deleteProject", function () {
-        const projectId = $(this).data("id");
-    
-        if (!confirm("Are you sure you want to delete this project?")) return;
-    
-        $.ajax({
-            url: `http://localhost:3001/api/projects/${projectId}`,
-            type: "DELETE",
-            success: function () {
-                alert("Project deleted successfully!");
-                $("#loadProjects").click(); // רענון הרשימה אחרי מחיקה
-            },
-            error: function (err) {
-                alert("Error deleting project");
-                console.log(err);
-            }
-        });
-    });
     
 });
