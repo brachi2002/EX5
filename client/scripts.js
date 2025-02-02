@@ -94,52 +94,27 @@ $(document).ready(function () {
     }
 
     $(document).on("click", "#showAddMemberModal", function () {
+        console.log("Add Member button clicked!");
         openModal("addMemberModal");
     });
 
-    // $("#addMemberForm").submit(function (event) {
-    //     event.preventDefault();
-    //     const newMember = {
-    //         name: $("#memberName").val(),
-    //         email: $("#memberEmail").val()
-    //     };
-
-    //     $.ajax({
-    //         url: "http://localhost:3001/api/members/create",
-    //         type: "POST",
-    //         contentType: "application/json",
-    //         data: JSON.stringify(newMember),
-    //         success: function () {
-    //             alert("Member added successfully!");
-    //             $("#addMemberForm")[0].reset();
-    //             closeModal("addMemberModal");
-    //             loadMembers();
-    //         },
-    //         error: function (err) {
-    //             alert("Error adding member");
-    //             console.log(err);
-    //         }
-    //     });
-    // });
-
     $("#addMemberForm").submit(function (event) {
         event.preventDefault();
-        const memberId = $("#memberIdInput").val();  // מזהה מוקלד
-        const role = $("#memberRole").val();
-    
-        if (!memberId || !role) {
-            alert("Member ID and role are required!");
-            return;
-        }
-    
+        const newMember = {
+            name: $("#memberName").val(),
+            email: $("#memberEmail").val()
+        };
+
         $.ajax({
-            url: `http://localhost:3001/api/projects/${selectedProjectId}/addMember`,
+            url: "http://localhost:3001/api/members/create",
             type: "POST",
             contentType: "application/json",
-            data: JSON.stringify({ memberId, role }),
+            data: JSON.stringify(newMember),
             success: function () {
                 alert("Member added successfully!");
+                $("#addMemberForm")[0].reset();
                 closeModal("addMemberModal");
+                loadMembers();
             },
             error: function (err) {
                 alert("Error adding member");
@@ -147,6 +122,32 @@ $(document).ready(function () {
             }
         });
     });
+
+    // $("#addMemberForm").submit(function (event) {
+    //     event.preventDefault();
+    //     const memberId = $("#memberIdInput").val();  // מזהה מוקלד
+    //     const role = $("#memberRole").val();
+    
+    //     if (!memberId || !role) {
+    //         alert("Member ID and role are required!");
+    //         return;
+    //     }
+    
+    //     $.ajax({
+    //         url: `http://localhost:3001/api/projects/${selectedProjectId}/addMember`,
+    //         type: "POST",
+    //         contentType: "application/json",
+    //         data: JSON.stringify({ memberId, role }),
+    //         success: function () {
+    //             alert("Member added successfully!");
+    //             closeModal("addMemberModal");
+    //         },
+    //         error: function (err) {
+    //             alert("Error adding member");
+    //             console.log(err);
+    //         }
+    //     });
+    // });
     
 
     /** ---------------------- ניהול פרויקטים ---------------------- **/
