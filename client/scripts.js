@@ -1,7 +1,6 @@
 $(document).ready(function () {
     /** ---------------------- פונקציות כלליות ---------------------- **/
 
-
     function openModal(modalId) {
         $("#" + modalId).fadeIn();
     }
@@ -9,7 +8,63 @@ $(document).ready(function () {
     function closeModal(modalId) {
         $("#" + modalId).fadeOut();
     }
-
+        /** ---------------------- טעינת הפרויקטים אוטומטית ---------------------- **/
+        function loadProjects() {
+            $.ajax({
+                url: "http://localhost:3001/api/projects/list",
+                type: "GET",
+                success: function (projects) {
+                    $("#projectList").empty();
+                    projects.forEach(project => {
+                        const teamList = project.team.length > 0 
+                            ? project.team.map(member => `${member.name} (${member.role})`).join(", ") 
+                            : "No team members";
+                        const formattedDate = new Date(project.startDate).toISOString().slice(0, 16).replace("T", " ");
+                        $("#projectList").append(`
+                            <tr>
+                                <td>${project._id}</td>
+                                <td>${project.name}</td>
+                                <td><a href="mailto:${project.manager.email}" class="email-link">${project.manager.name} (${project.manager.email})</a></td>
+                                <td>${formattedDate}</td>
+                                <td>${teamList}</td>
+                                <td>
+                                    <button class="viewTeam" data-id="${project._id}">View Team</button>
+                                    <button class="deleteProject" data-id="${project._id}">Delete</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                },
+                error: function (err) {
+                    alert("Error loading projects");
+                    console.log(err);
+                }
+            });
+        }
+    
+        // קריאה לפונקציה עם טעינת הדף
+        loadProjects();
+    
+        // טיפול במחיקה של פרויקט
+        $(document).on("click", ".deleteProject", function () {
+            const projectId = $(this).data("id");
+    
+            if (!confirm("Are you sure you want to delete this project?")) return;
+    
+            $.ajax({
+                url: `http://localhost:3001/api/projects/${projectId}`,
+                type: "DELETE",
+                success: function () {
+                    alert("Project deleted successfully!");
+                    loadProjects(); // רענון הרשימה אחרי מחיקה
+                },
+                error: function (err) {
+                    alert("Error deleting project");
+                    console.log(err);
+                }
+            });
+        });
+    
     
     
     /** ---------------------- ניהול חברי צוות ---------------------- **/
@@ -178,38 +233,38 @@ $(document).ready(function () {
     });
     
 
-    $("#loadProjects").click(function () {
-        $.ajax({
-            url: "http://localhost:3001/api/projects/list",
-            type: "GET",
-            success: function (projects) {
-                $("#projectList").empty();
-                projects.forEach(project => {
-                    const teamList = project.team.length > 0 
-                        ? project.team.map(member => `${member.name} (${member.role})`).join(", ") 
-                        : "No team members";
-                        const formattedDate = new Date(project.startDate).toISOString().slice(0, 16).replace("T", " ");
-                    $("#projectList").append(`
-                        <tr>
-                            <td>${project._id}</td>
-                            <td>${project.name}</td>
-                            <td><a href="mailto:${project.manager.email}" class="email-link">${project.manager.name} (${project.manager.email})</a></td>
-                            <td>${formattedDate}</td>
-                            <td>${teamList}</td>
-                            <td>
-                                <button class="viewTeam" data-id="${project._id}">View Team</button>
-                                <button class="deleteProject" data-id="${project._id}">Delete</button>
-                            </td>
-                        </tr>
-                    `);
-                });
-            },
-            error: function (err) {
-                alert("Error loading projects");
-                console.log(err);
-            }
-        });
-    });
+    // $("#loadProjects").click(function () {
+        // $.ajax({
+            // url: "http://localhost:3001/api/projects/list",
+            // type: "GET",
+            // success: function (projects) {
+                // $("#projectList").empty();
+                // projects.forEach(project => {
+                    // const teamList = project.team.length > 0 
+                        // ? project.team.map(member => `${member.name} (${member.role})`).join(", ") 
+                        // : "No team members";
+                        // const formattedDate = new Date(project.startDate).toISOString().slice(0, 16).replace("T", " ");
+                    // $("#projectList").append(`
+                        // <tr>
+                            // <td>${project._id}</td>
+                            // <td>${project.name}</td>
+                            // <td><a href="mailto:${project.manager.email}" class="email-link">${project.manager.name} (${project.manager.email})</a></td>
+                            // <td>${formattedDate}</td>
+                            // <td>${teamList}</td>
+                            // <td>
+                                // <button class="viewTeam" data-id="${project._id}">View Team</button>
+                                // <button class="deleteProject" data-id="${project._id}">Delete</button>
+                            // </td>
+                        // </tr>
+                    // `);
+                // });
+            // },
+            // error: function (err) {
+                // alert("Error loading projects");
+                // console.log(err);
+            // }
+        // });
+    // });
 
     $(document).on("change", ".memberSelect", function () {
         loadMembersForSelection();
