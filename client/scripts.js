@@ -30,7 +30,7 @@ $(document).ready(function () {
         });
     }
 
-    $("#showAddMemberModal").click(function () {
+    $(document).on("click", "#showAddMemberModal", function () {
         openModal("addMemberModal");
     });
 
@@ -60,7 +60,7 @@ $(document).ready(function () {
     });
 
     /** ---------------------- ניהול פרויקטים ---------------------- **/
-    $("#showAddProjectModal").click(function () {
+    $(document).on("click", "#showAddProjectModal", function () {
         $("#teamMembers").empty();
         loadMembers();
         openModal("addProjectModal");
@@ -109,7 +109,7 @@ $(document).ready(function () {
                 updateMemberDropdowns(members);
             },
             error: function (err) {
-                alert("Error loading members");
+                alert("Error loading members!!!");
                 console.log(err);
             }
         });
@@ -188,8 +188,7 @@ $(document).ready(function () {
                     const teamList = project.team.length > 0 
                         ? project.team.map(member => `${member.name} (${member.role})`).join(", ") 
                         : "No team members";
-                    const formattedDate = new Date(project.startDate).toLocaleString();
-
+                        const formattedDate = new Date(project.startDate).toISOString().slice(0, 16).replace("T", " ");
                     $("#projectList").append(`
                         <tr>
                             <td>${project.name}</td>
