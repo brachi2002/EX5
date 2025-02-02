@@ -86,26 +86,26 @@ router.post('/:id/addMember', async (req, res) => {
 });
 
 
-// שליפת כל הפרויקטים
 router.get('/list', async (req, res) => {
     try {
-        const projects = await Project.find();
+        const projects = await Project.find().sort({ startDate: -1 }); // סדר יורד
         res.status(200).json(projects);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// שליפת פרויקט לפי מזהה
+
 router.get('/:id', async (req, res) => {
     try {
-        const project = await Project.findById(req.params.id);
+        const project = await Project.findById(req.params.id).populate('team.memberId', 'name email');
         if (!project) return res.status(404).json({ message: "Project not found" });
         res.status(200).json(project);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 router.delete('/:id', async (req, res) => {
     try {
