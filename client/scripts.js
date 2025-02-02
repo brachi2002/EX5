@@ -191,8 +191,9 @@ $(document).ready(function () {
                         const formattedDate = new Date(project.startDate).toISOString().slice(0, 16).replace("T", " ");
                     $("#projectList").append(`
                         <tr>
+                            <td>${project._id}</td>
                             <td>${project.name}</td>
-                            <td>${project.manager.name} (${project.manager.email})</td>
+                            <td><a href="mailto:${project.manager.email}" class="email-link">${project.manager.name} (${project.manager.email})</a></td>
                             <td>${formattedDate}</td>
                             <td>${teamList}</td>
                             <td>
