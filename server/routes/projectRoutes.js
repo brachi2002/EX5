@@ -1,19 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const Project = require('../models/Project');
-const Member = require('../models/Member');
+const Project = require('../models/Project'); // טעינת המודל של פרויקטים
+const Member = require('../models/Member'); // טעינת המודל של חברי צוות
 
-
+// =====================
 // יצירת פרויקט חדש
+// =====================
 router.post('/create', async (req, res) => {
     try {
         const { name, description, startDate, manager, team } = req.body;
 
-        // בדיקה אם רשימת הצוות ריקה
+        // בדיקה אם יש לפחות חבר צוות אחד בפרויקט
         if (!team || team.length === 0) {
             return res.status(400).json({ error: "A project must have at least one team member" });
         }
 
+        // יצירת פרויקט חדש עם הנתונים שנשלחו בבקשה
         const newProject = new Project({
             name,
             description,
@@ -22,37 +24,40 @@ router.post('/create', async (req, res) => {
             team
         });
 
+        // שמירת הפרויקט במסד הנתונים
         await newProject.save();
         res.status(201).json(newProject);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ error: error.message }); // טיפול בשגיאות
     }
 });
 
-
-
-// שליפת צוות הפרויקט
+// =====================
+// שליפת צוות הפרויקט לפי מזהה הפרויקט
+// =====================
 router.get('/:id/team', async (req, res) => {
     try {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: "Project not found" });
-        res.status(200).json(project.team);
+
+        res.status(200).json(project.team); // מחזיר את רשימת הצוות של הפרויקט
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-
-
+// =====================
+// הוספת חבר צוות לפרויקט
+// =====================
 router.post('/:id/addMember', async (req, res) => {
     try {
         const { memberId, role } = req.body;
 
-        // חיפוש חבר הצוות
+        // חיפוש חבר הצוות במסד הנתונים
         const member = await Member.findById(memberId);
         if (!member) return res.status(404).json({ message: "Member not found" });
 
-        // חיפוש הפרויקט
+        // חיפוש הפרויקט במסד הנתונים
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: "Project not found" });
 
@@ -85,28 +90,36 @@ router.post('/:id/addMember', async (req, res) => {
     }
 });
 
-
+// =====================
+// שליפת רשימת כל הפרויקטים
+// =====================
 router.get('/list', async (req, res) => {
     try {
-        const projects = await Project.find().sort({ startDate: -1 }); // סדר יורד
+        const projects = await Project.find().sort({ startDate: -1 }); // מיון הפרויקטים מהחדש לישן
         res.status(200).json(projects);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-
+// =====================
+// שליפת פרויקט ספציפי לפי מזהה
+// =====================
 router.get('/:id', async (req, res) => {
     try {
+        // חיפוש הפרויקט ושיוך חברי הצוות כולל שם ואימייל
         const project = await Project.findById(req.params.id).populate('team.memberId', 'name email');
         if (!project) return res.status(404).json({ message: "Project not found" });
+
         res.status(200).json(project);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-
+// =====================
+// מחיקת פרויקט
+// =====================
 router.delete('/:id', async (req, res) => {
     try {
         const projectId = req.params.id;
@@ -117,13 +130,13 @@ router.delete('/:id', async (req, res) => {
             return res.status(404).json({ message: "Project not found" });
         }
 
-        // מסירים את הפרויקט מכל חברי הצוות
+        // מסירים את הפרויקט מכל חברי הצוות שרשומים אליו
         await Member.updateMany(
             { "projects.projectId": projectId }, 
             { $pull: { projects: { projectId: projectId } } }
         );
 
-        // מוחקים את הפרויקט עצמו
+        // מוחקים את הפרויקט עצמו מהמסד נתונים
         await Project.findByIdAndDelete(projectId);
 
         res.status(200).json({ message: "Project deleted successfully and removed from team members" });
@@ -132,6 +145,4 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-
-
-module.exports = router;
+module.exports = router; // ייצוא הנתיב לשימוש בקובץ הראשי של השרת
